@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>ציר זמן גזענות והתנגדות</title>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant&display=swap" rel="stylesheet">
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Assistant', sans-serif;
+      direction: rtl;
+      background-color: #e6f0ff;
+    }
+
+    .wrapper {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      color: #1e3f66;
+      margin-bottom: 10px;
+    }
+
+    p.description {
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    .controls button {
+      margin: 0 5px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      opacity: .6;
+      position: relative;
+    }
+
+    .controls button.active {
+      opacity: 1;
+    }
+
+    .controls button::after {
+      content: '';
+      display: none;
+      width: 8px;
+      height: 8px;
+      background-color: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 4px;
+      left: 4px;
+    }
+
+    .controls button.showing::after {
+      display: block;
+    }
+
+    .controls button[data-group="policy-racism"] { background-color: #d9534f; }
+    .controls button[data-group="resistance"] { background-color: #5cb85c; }
+    .controls button[data-group="culture-racism"] { background-color: #f0ad4e; }
+    .controls button[data-group="culture-resistance"] { background-color: #5bc0de; }
+
+    .zoom-controls {
+      margin-bottom: 10px;
+    }
+
+    .zoom-controls button {
+      padding: 6px 12px;
+      margin: 0 5px;
+      cursor: pointer;
+      background-color: #1e90ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 18px;
+    }
+
+    .timeline-container {
+      width: 100%;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding-bottom: 300px;
+      cursor: grab;
+    }
+
+    .timeline-container.dragging { cursor: grabbing; }
+
+    .timeline-container::-webkit-scrollbar {
+      height: 10px;
+    }
+
+    .timeline-container::-webkit-scrollbar-track {
+      background: #d0e4ff;
+      border-radius: 5px;
+    }
+
+    .timeline-container::-webkit-scrollbar-thumb {
+      background: #a8b7c7;
+      border-radius: 5px;
+    }
+
+    .timeline-container::-webkit-scrollbar-thumb:hover {
+      background: #a8b7c7;
+    }
+
+    .timeline-wrapper {
+       padding-right: 20px; /* היה 100px */
+  padding-left: 20px;  /* היה 50px */
+      min-width: fit-content;
+  transform-origin: top right;
+      transition: transform 0.3s ease;
+    }
+
+    .timeline {
+      position: relative;
+      height: 400px;
+      min-width:30200px;
+    }
+
+    .line {
+      position: absolute;
+      top: 120px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background-color: #1e90ff;
+      z-index: 1;
+    }
+
+    .event {
+      position: absolute;
+      top: 100px;
+      transform: translateX(-50%) translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+        min-width: 32px;
+
+    }
+
+    .event.hidden {
+      display: none;
+    }
+
+    .label {
+      margin-bottom: 10px;
+      text-align: center;
+      color: #003366;
+    }
+
+    .year {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .title {
+      font-size: 12px;
+      max-width: 140px;
+    }
+
+    .dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      position: relative;
+      cursor: pointer;
+        transition: transform 0.2s ease;
+
+    }
+
+    .dot:hover {
+  transform: scale(1.2);
+}
+
+    .event[data-group~="policy-racism"] .dot { background-color: #d9534f; }
+    .event[data-group~="resistance"] .dot { background-color: #5cb85c; }
+    .event[data-group~="culture-racism"] .dot { background-color: #f0ad4e; }
+    .event[data-group~="culture-resistance"] .dot { background-color: #5bc0de; }
+
+.event.period .dot-container {
+  width: 100%;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event.period .dot {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+  min-width: 20px; /* מבטיח שהמלבן לא ייעלם */
+}
+
+
+
+    .tooltip {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      position: absolute;
+      top: 130%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #007acc;
+      color: white;
+      text-align: right;
+      padding: 10px 12px;
+      border-radius: 6px;
+      width: 260px;
+      max-width: 300px;
+      white-space: normal;
+      overflow-wrap: break-word;
+      font-size: 14px;
+      line-height: 1.6;
+      z-index: 3;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .tooltip.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .tooltip .close-tooltip {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .zoom-buttons {
+  position: fixed;
+  bottom: 50px;
+  left: 50px; /* שימי right: 20px אם את מעדיפה בצד ימין */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+}
+
+.zoom-buttons button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background-color: #1e90ff;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background-color 0.3s;
+}
+
+.zoom-buttons button:hover {
+  background-color: #156db3;
+}
+
+.zoom-buttons button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.year-hover {
+  position: absolute;
+  top: 132px; /* ממש מתחת לקו הציר שנמצא ב-120px */
+  transform: translateX(-50%);
+  background-color: white;
+  color: #1e3f66;
+  border: 1px solid #1e90ff;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  display: none;
+  z-index: 10;
+}
+
+
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>ציר זמן גזענות והתנגדות</h1>
+    <p class="description">גללו שמאלה/ימינה, לחצו לנקודה להסבר, וסננו לפי קבוצות.</p>
+
+    <!-- כפתורי זום -->
+<div class="zoom-buttons">
+  <button id="zoom-in">+</button>
+  <button id="zoom-out">−</button>
+</div>
+
+    <!-- כפתורי קטגוריה -->
+    <div class="controls">
+      <button data-group="policy-racism">גזענות דרך מדיניות</button>
+      <button data-group="resistance">התנגדות לגזענות</button>
+      <button data-group="culture-racism">גזענות דרך תרבות</button>
+      <button data-group="culture-resistance">התנגדות דרך תרבות</button>
+    </div>
+
+
+
+    <!-- הציר עצמו -->
+    <div class="timeline-container">
+      <div class="timeline-wrapper">
+        <div class="timeline">
+          <div class="line"></div>
+          <div class="year-hover" id="year-hover"></div>
+
+
+<!-- 1. עבדות בעת העתיקה (0–500) -->
+<div class="event period" data-group="policy-racism culture-racism" style="left:12.4%; width:24.7%;">
+  <div class="label">
+    <div class="year">0–500</div>
+    <div class="title">עבדות בעת העתיקה</div>
+  </div>
+  <div class="dot-container">
+    <div class="dot">
+      <div class="tooltip">
+        <button class="close-tooltip">×</button>
+        <strong>גזענות דרך מדיניות:</strong><br>
+       בחברות עתיקות כגון יוון, רומא ומצרים, העבדות הייתה מוסד נפוץ אך טרם התבססה על אידיאולוגיה גזעית. העבדים היו בעיקר שבויי מלחמה, חייבים, פושעים או קורבנות פשיטות, והשעבוד נבע בעיקר ממעמד חברתי, תועלת כלכלית וכיבוש - לא מהנחה בדבר נחיתות ביולוגית. עם זאת, עצם קיומה של מערכת העבדות יצרה את הרעיון של העבד כנחות חברתית. באזורים מסוימים החלו הבדלי גוון עור  להיקשר למעמד נחות, כמו ההבחנה הרומית בין ״ברברים״ ל״אנשים מתורבתים״.
+למרות שלא הייתה מבוססת על גזע, העבדות בעת העתיקה תרמה לעיצוב מושגים שבעתיד שימשו להצדקת עבדות גזעית - ובראשם הרעיון כי קבוצות אנושיות מסוימות מתאימות מטבען לשעבוד, וכן הדה-הומניזציה המשפטית של העבדים, שהוגדרו כרכוש חסר זכויות.
+<br><br>
+        <strong>גזענות דרך תרבות:</strong><br>
+       בכרך א׳ של ״הפוליטיקה״, אריסטו מסביר בהרחבה את ההצדקה לעבדות, בראש ובראשונה על בסיס לידה (ראו נספחים)<br><br>
+        <strong>נספחים:</strong><br>
+        <a href="https://www.britannica.com/topic/slavery-sociology/Slave-societies" target="_blank">עבדות - בריטניקה</a><br>
+        <a href="https://ebooks-psik-io.eu1.proxy.openathens.net/book?book_id=1396" target="_blank">אריסטו - הפוליטיקה</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. התרחבות הקולוניאליזם (1500–1900) -->
+<div class="event period" data-group="policy-racism culture-racism" style="left:74.1%; width:19.7%;">
+  <div class="label">
+    <div class="year">1500–1900</div>
+    <div class="title">התרחבות הקולוניאליזם</div>
+  </div>
+  <div class="dot-container">
+    <div class="dot">
+      <div class="tooltip">
+        <button class="close-tooltip">×</button>
+        <strong>גזענות דרך מדיניות:</strong><br>
+        הקמת מושבות, ניצול משאבים ושליטה על מסחר לטובת המדינה השלטת. מוסדות ותרבות אירופיים הוטמעו באזורים נכבשים ויצרו מערכות דיכוי ואי-שוויון עמוקות.<br><br>
+        <strong>גזענות דרך תרבות:</strong><br>
+        1. הדרוויניזם החברתי, שהופץ על ידי דמויות כמו הרברט ספנסר, יישם את רעיון "הישרדות הכשירים ביותר" על חברות אנושיות והצדיק אי-שוויון גזעי, קולוניאליזם ואימפריאליזם. הוא ביסס את הרעיון של עליונות גזעים כמו האנגלו-סקסים והארים.
+
+2. בתערוכות פופולריות שהתקיימו בין סוף המאה ה-19 לאמצע המאה ה-20, הוצגו בני אדם מאפריקה, אסיה ואמריקה הלטינית בתפאורה מבוימת כ"פרימיטיביים". המופעים נשענו על אידאולוגיות כמו גזענות מדעית ודרוויניזם חברתי, אשר תיארו עמים לא-אירופיים כנחותים אבולוציונית. גני החיות האנושיים שימשו הן כבידור המוני והן כתעמולה גזענית, ויצרו דה-הומניזציה מוחלטת של הנצפים.
+<br><br>
+        <strong>נספחים:</strong><br>
+        <a href="https://www.britannica.com/topic/social-Darwinism" target="_blank">דרוויניזם חברתי - בריטניקה</a><br>
+        <a href="https://www.britannica.com/topic/Western-colonialism" target="_blank">קולוניאליזם מערבי - בריטניקה</a><br>
+        <a href="https://jimcrowmuseum.ferris.edu/question/2006/october.htm" target="_blank">מאמר על גני חיות אנושיים - Jim Crow Museum</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. רצח העם הארמני (1915–1916) -->
+<div class="event period" data-group="policy-racism culture-racism culture-resistance" style="left:94.6%; width:0.4%;">
+  <div class="label">
+    <div class="year">1915–1916</div>
+    <div class="title">רצח העם הארמני</div>
+  </div>
+  <div class="dot-container">
+    <div class="dot">
+      <div class="tooltip">
+        <button class="close-tooltip">×</button>
+        <strong>גזענות דרך מדיניות:</strong><br>
+        שלטון הטורקים הצעירים של האימפריה העות'מאנית פתח במהלך מלחמת העולם הראשונה במסע גירוש והשמדה נגד האוכלוסייה הארמנית. בתירוץ של ביטחון לאומי, ובייחוד לאחר תבוסות צבאיות, גורשו הארמנים מהצבא, פורקו מנשקם והוצאו להורג. במאי 1915 חוקק הפרלמנט העות'מאני חוק שהתיר גירוש המוני ממזרח אנטוליה. הגירושים לוו בטבח, הרעבה וצעדות כפויות למחנות מדבריים בסוריה. בין 600,000 ל-1.5 מיליון ארמנים נספו. מטרת המדיניות הייתה ליצור מדינה טורקית הומוגנית מבחינה אתנית.<br><br>
+        <strong>גזענות דרך תרבות:</strong><br>
+        דעות קדומות ממושכות כלפי ארמנים, שנתפסו כמצליחים כלכלית, בלתי נאמנים פוליטית וזרים דתית, תרמו לתמיכה ציבורית במדיניות הקיצונית. התעמולה תיארה את הארמנים כאויבים פנימיים וכמשתפי פעולה עם גורמים זרים. ההקצנה של התנועה הלאומנית של הטורקים הצעירים הובילה לאידאולוגיה שראתה באחידות אתנית תנאי להישרדות המדינה.<br><br>
+        <strong>התנגדות דרך תרבות:</strong><br>
+        קהילות ארמניות ברחבי העולם פועלות כבר יותר ממאה שנה להשגת הכרה ולשימור זיכרון רצח העם. המחקר ההיסטורי המודרני מכיר באופן חד משמעי באירועים כרצח עם, למרות ההכחשה המתמשכת מצד טורקיה.<br><br>
+        <a href="https://www.britannica.com/event/Armenian-Genocide" target="_blank">רצח העם הארמני - בריטניקה</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. טבח שארפוויל (1960) -->
+<div class="event" data-group="resistance" style="left:96.3%;">
+  <div class="label">
+    <div class="year">1960</div>
+    <div class="title">טבח שארפוויל</div>
+  </div>
+  <div class="dot-container">
+    <div class="dot">
+      <div class="tooltip">
+        <button class="close-tooltip">×</button>
+        <strong>התנגדות לגזענות:</strong><br>
+        ב-21 במרץ 1960, התרחש טבח אכזרי בעיירה שארפוויל, סמוך ליוהנסבורג, במהלך הפגנה לא-אלימה נגד חוקי המעבר. מפגינים שחורים לא חמושים התאספו ליד תחנת המשטרה, והמשטרה פתחה באש על הקהל, הרגה לפחות 69 בני אדם ופצעה מעל 180, רבים מהם נורו בגבם בעת שניסו לברוח. הטבח זעזע את דרום אפריקה והעולם כולו. <br><br>
+        <a href="https://www.britannica.com/place/South-Africa" target="_blank">אפרטהייד בריטניקה</a><br>
+        <a href="https://www.britannica.com/biography/Nelson-Mandela" target="_blank">נלסון מנדלה - בריטניקה</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. איסלאמופוביה לאחר 9/11 (2001–2025) -->
+<div class="event period" data-group="policy-racism" style="left:99.4%; width:1.5%;">
+  <div class="label">
+    <div class="year">2001–2025</div>
+    <div class="title">איסלאמופוביה אחרי 9/11</div>
+  </div>
+  <div class="dot-container">
+    <div class="dot">
+      <div class="tooltip">
+        <button class="close-tooltip">×</button>
+        <strong>גזענות דרך מדיניות:</strong><br>
+        בעקבות פיגועי הטרור של 11 בספטמבר 2001, גברו באופן דרמטי פחד, שנאה ואפליה כלפי מוסלמים ודת האיסלאם ברחבי העולם. בתקופה זו חלה עלייה חדה בתקיפות מילוליות ופיזיות נגד מוסלמים, במיוחד בארצות הברית ובאירופה. ממשלות ותנועות פוליטיות קידמו גם חקיקה מפלה, כגון חוקים המגבילים סממנים דתיים בציבור, תוך הסתמכות על הטענה שאיסלאם אינו תואם לערכי המערב.<br><br>
+        <a href="https://www.britannica.com/topic/Islamophobia" target="_blank">Islamophobia</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Black Lives Matter (2013–2025) -->
+<div class="event period" data-group="policy-racism culture-racism culture-resistance" style="left:99.7%; width:0.6%; margin-top: -70px;">
+  <div class="label">
+    <div class="year">2013–2025</div>
+    <div class="title" >Black Lives Matter</div>
+  </div>
+  <div class="dot-container">
+    <div class="dot">
+      <div class="tooltip">
+        <button class="close-tooltip">×</button>
+        <strong>גזענות דרך מדיניות:</strong><br>
+        אפליה גזעית בארצות הברית באה לידי ביטוי גם כיום, במיוחד במקרים של אלימות משטרית, כאשר הסיכוי שאדם שחור ייהרג על ידי המשטרה גבוה בהרבה מהסיכוי של אדם לבן. אירועים כמו הירי בנער הלא חמוש טראייבון מרטין בשנת 2012 על ידי מתנדב במשמר שכונתי, ולאחר מכן ההרג של אריק גארנר ומייקל בראון, הגבירו את המודעות לאלימות המשטרתית. מותם של ג'ורג' פלויד, אמהוד ארברי ובריאונה טיילור בשנת 2020 הגבירו את תשומת הלב של החברה האמריקאית כלפי אלימות משטרתית וחשפו את עומק הגזענות המושרשת במערכת.<br><br>
+        <strong>גזענות דרך תרבות:</strong><br>
+        תנועת Black Lives Matter (BLM) נוסדה בשנת 2013 כתגובה לגזענות המתמשכת ולאלימות כלפי שחורים, תוך התמקדות מיוחדת באכזריות משטרתית. התנועה פועלת כמערך חברתי מבוזר (לא ארגון היררכי), ופועלת למען זכויות האדם והאזרח של אנשים שחורים ולהטלת ספק במוסדות, חוקים ומדיניות המשמרים אפליה וחוסר צדק. באמצעות הפגנות ענק ושימוש ברשתות החברתיות, התנועה מתמקדת בלחשוף אי שוויון מערכתי, לדרוש אחריות מהחוק והמשטרה, ולהיאבק באפליה גזעית.<br><br>
+        <strong>התנגדות דרך תרבות:</strong><br>
+        גרפיטי ענק של המילים “Black Lives Matter” בוושינגטון הבירה, מוזיקה של קנדריק לאמאר ו-H.E.R, הפקות נטפליקס ופרויקטים חינוכיים ברשתות.<br><br>
+        <a href="https://www.britannica.com/topic/Black-Lives-Matter" target="_blank">BLM Britanica</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const activeGroups = new Set();
+
+    document.querySelectorAll('.controls button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const grp = btn.getAttribute('data-group');
+
+        if (activeGroups.has(grp)) {
+          activeGroups.delete(grp);
+          btn.classList.remove('active');
+        } else {
+          activeGroups.add(grp);
+          btn.classList.add('active');
+        }
+
+        document.querySelectorAll('.event').forEach(ev => {
+          const groups = ev.getAttribute('data-group').split(' ');
+          const show = activeGroups.size === 0 || groups.some(g => activeGroups.has(g));
+          ev.classList.toggle('hidden', !show);
+        });
+
+        document.querySelectorAll('.controls button').forEach(b => {
+          const group = b.getAttribute('data-group');
+          const hasVisible = [...document.querySelectorAll(`.event[data-group*="${group}"]`)].some(e => !e.classList.contains('hidden'));
+          b.classList.toggle('showing', hasVisible && activeGroups.has(group));
+        });
+      });
+    });
+
+    const container = document.querySelector('.timeline-container');
+    let isDown = false, startX, scrollLeft;
+
+    container.addEventListener('mousedown', e => {
+      isDown = true;
+      container.classList.add('dragging');
+      startX = e.pageX - container.offsetLeft;
+      scrollLeft = container.scrollLeft;
+      e.preventDefault();
+    });
+
+    container.addEventListener('mouseleave', () => {
+      isDown = false;
+      container.classList.remove('dragging');
+    });
+
+    container.addEventListener('mouseup', () => {
+      isDown = false;
+      container.classList.remove('dragging');
+    });
+
+    container.addEventListener('mousemove', e => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - container.offsetLeft;
+      const walk = (x - startX) * 2;
+      container.scrollLeft = scrollLeft - walk;
+    });
+
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.addEventListener('click', e => {
+        e.stopPropagation();
+        document.querySelectorAll('.tooltip.active').forEach(openTip => openTip.classList.remove('active'));
+        const tip = dot.querySelector('.tooltip');
+        tip.classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.tooltip .close-tooltip').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        btn.closest('.tooltip').classList.remove('active');
+      });
+    });
+
+    document.body.addEventListener('click', () => {
+      document.querySelectorAll('.tooltip.active').forEach(tip => tip.classList.remove('active'));
+    });
+
+    // ✅ זום עם הגבלה וכפתורים מושבתים
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    const timelineWrapper = document.querySelector('.timeline-wrapper');
+
+    let zoomLevel = 1;
+    const minZoom = 1;
+    const maxZoom = 3;
+
+    function applyZoom() {
+      timelineWrapper.style.transform = `scale(${zoomLevel})`;
+      updateZoomButtons();
+    }
+
+    function updateZoomButtons() {
+      zoomOutBtn.disabled = zoomLevel <= minZoom;
+      zoomInBtn.disabled = zoomLevel >= maxZoom;
+    }
+
+    zoomInBtn.addEventListener('click', () => {
+      if (zoomLevel < maxZoom) {
+        zoomLevel = Math.min(zoomLevel + 0.2, maxZoom);
+        applyZoom();
+      }
+    });
+
+    zoomOutBtn.addEventListener('click', () => {
+      if (zoomLevel > minZoom) {
+        zoomLevel = Math.max(zoomLevel - 0.2, minZoom);
+        applyZoom();
+      }
+    });
+
+    applyZoom(); // הפעלה ראשונית
+  });
+
+
+  const timeline = document.querySelector('.timeline');
+const yearHover = document.getElementById('year-hover');
+
+// הגדרות טווח
+const startYear = 0;
+const endYear = 2025;
+
+timeline.addEventListener('mousemove', e => {
+  const rect = timeline.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const percent = x / rect.width;
+  const year = Math.round(startYear + percent * (endYear - startYear));
+
+  yearHover.style.left = `${x}px`;
+  yearHover.textContent = year;
+  yearHover.style.display = 'block';
+});
+
+timeline.addEventListener('mouseleave', () => {
+  yearHover.style.display = 'none';
+});
+
+
+</script>
+
+</body>
+</html>
