@@ -117,14 +117,6 @@
       background: #a8b7c7;
     }
 
-
-.timeline-scale-wrapper {
-  display: inline-block;
-  transition: transform 0.3s ease;
-  transform-origin: top right; /* חשוב ל־RTL */
-}
-
-
 .timeline-wrapper {
   width: fit-content;
   padding-right: 100px;
@@ -305,7 +297,10 @@
   display: none;
   z-index: 10;
 }
-
+.zoom-scaler {
+  transform-origin: top right;
+  transition: transform 0.3s ease;
+}
 
   </style>
 </head>
@@ -332,7 +327,7 @@
 
     <!-- הציר עצמו -->
     <div class="timeline-container">
-        <div class="timeline-scale-wrapper"> <!-- עטיפה חדשה -->
+        <div class="zoom-scaler">
       <div class="timeline-wrapper">
         <div class="timeline">
           <div class="line"></div>
@@ -475,8 +470,8 @@
         </div>
       </div>
     </div>
+       </div>
   </div>
-    </div>
 
  <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -568,16 +563,15 @@ const maxZoom = 3;
 
 function applyZoom() {
   const container = document.querySelector('.timeline-container');
-  const scaleWrapper = document.querySelector('.timeline-scale-wrapper');
+  const scaleWrapper = document.querySelector('.zoom-scaler');
+
   const scrollLeftBefore = container.scrollLeft;
-  const scrollWidthBefore = scaleWrapper.scrollWidth;
+  const scrollRatio = scrollLeftBefore / container.scrollWidth;
 
   scaleWrapper.style.transform = `scale(${zoomLevel})`;
 
   requestAnimationFrame(() => {
-    const scrollWidthAfter = scaleWrapper.getBoundingClientRect().width;
-    const scrollRatio = scrollLeftBefore / scrollWidthBefore;
-    container.scrollLeft = scrollRatio * scrollWidthAfter;
+    container.scrollLeft = scrollRatio * container.scrollWidth;
   });
 
   updateZoomButtons();
