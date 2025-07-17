@@ -121,8 +121,7 @@
        padding-right: 100px; /* היה 100px */
        padding-left: 100px;  /* היה 50px */
        width: 100%;
-       transform-origin: top right; /* עדיין אפשר להשאיר למקרה של שימוש עתידי */
-       transition: width 0.3s ease;
+       transform-origin: top right; /* עדיין אפשר להשאיר למקרה של שימוש עתידי */transition: width 0.3s ease;
     }
 
     .timeline {
@@ -556,19 +555,10 @@ const hasVisible = [...document.querySelectorAll(`event[data-group*="${group}"]`
     const minZoom = 1;
     const maxZoom = 3;
 
-function applyZoom() {
-  const container = document.querySelector('.timeline-container');
-  const scrollLeftBefore = container.scrollLeft;
-  const scrollRatio = scrollLeftBefore / timelineWrapper.offsetWidth;
-
-  timelineWrapper.style.width = `${zoomLevel * 100}%`;
-
-  requestAnimationFrame(() => {
-    container.scrollLeft = scrollRatio * timelineWrapper.offsetWidth;
-  });
-
-  updateZoomButtons();
-}
+    function applyZoom() {
+timelineWrapper.style.width = `${zoomLevel * 100}%`;
+      updateZoomButtons();
+    }
 
     function updateZoomButtons() {
       zoomOutBtn.disabled = zoomLevel <= minZoom;
