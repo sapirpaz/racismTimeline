@@ -117,6 +117,14 @@
       background: #a8b7c7;
     }
 
+
+.timeline-scale-wrapper {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  transform-origin: top right; /* חשוב ל־RTL */
+}
+
+
 .timeline-wrapper {
   width: fit-content;
   padding-right: 100px;
@@ -324,6 +332,7 @@
 
     <!-- הציר עצמו -->
     <div class="timeline-container">
+        <div class="timeline-scale-wrapper"> <!-- עטיפה חדשה -->
       <div class="timeline-wrapper">
         <div class="timeline">
           <div class="line"></div>
@@ -467,6 +476,7 @@
       </div>
     </div>
   </div>
+    </div>
 
  <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -558,16 +568,14 @@ const maxZoom = 3;
 
 function applyZoom() {
   const container = document.querySelector('.timeline-container');
+  const scaleWrapper = document.querySelector('.timeline-scale-wrapper');
   const scrollLeftBefore = container.scrollLeft;
-  const scrollWidthBefore = timelineWrapper.scrollWidth;
+  const scrollWidthBefore = scaleWrapper.scrollWidth;
 
-  // שימי לב: אנו משתמשים ב-transform כדי לשנות קנה מידה
-  timelineWrapper.style.transform = `scale(${zoomLevel})`;
-  timelineWrapper.style.transformOrigin = 'top right'; // חשוב במיוחד ל־RTL
+  scaleWrapper.style.transform = `scale(${zoomLevel})`;
 
-  // חישוב גלילה חדש לפי היחס
   requestAnimationFrame(() => {
-    const scrollWidthAfter = timelineWrapper.getBoundingClientRect().width;
+    const scrollWidthAfter = scaleWrapper.getBoundingClientRect().width;
     const scrollRatio = scrollLeftBefore / scrollWidthBefore;
     container.scrollLeft = scrollRatio * scrollWidthAfter;
   });
