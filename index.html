@@ -492,7 +492,7 @@
 
         document.querySelectorAll('.controls button').forEach(b => {
           const group = b.getAttribute('data-group');
-          const hasVisible = [...document.querySelectorAll(.event[data-group*="${group}"])].some(e => !e.classList.contains('hidden'));
+const hasVisible = [...document.querySelectorAll(`.event[data-group*="${group}"]`)].some(e => !e.classList.contains('hidden'));
           b.classList.toggle('showing', hasVisible && activeGroups.has(group));
         });
       });
@@ -557,7 +557,7 @@
     const maxZoom = 3;
 
     function applyZoom() {
-      timelineWrapper.style.transform = scale(${zoomLevel});
+timelineWrapper.style.transform = `scale(${zoomLevel})`;
       updateZoomButtons();
     }
 
@@ -597,7 +597,7 @@ timeline.addEventListener('mousemove', e => {
   const percent = x / rect.width;
   const year = Math.round(startYear + percent * (endYear - startYear));
 
-  yearHover.style.left = ${x}px;
+yearHover.style.left = `${x}px`;
   yearHover.textContent = year;
   yearHover.style.display = 'block';
 });
