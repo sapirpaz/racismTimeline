@@ -117,14 +117,13 @@
       background: #a8b7c7;
     }
 
-    .timeline-wrapper {
-       padding-right: 100px; /* היה 100px */
-  padding-left: 100px;  /* היה 50px */
-  width: 100%;
-  transform-origin: top right; /* עדיין אפשר להשאיר למקרה של שימוש עתידי */
-  transition: width 0.3s ease;
-
-    }
+.timeline-wrapper {
+  width: fit-content;
+  padding-right: 100px;
+  padding-left: 20px;
+  transition: transform 0.3s ease;
+  transform-origin: top right;
+}
 
     .timeline {
       position: relative;
@@ -557,22 +556,37 @@ const hasVisible = [...document.querySelectorAll(`event[data-group*="${group}"]`
     const minZoom = 1;
     const maxZoom = 3;
 
-    function applyZoom() {
-timelineWrapper.style.width = `${zoomLevel * 100}%`;
-      updateZoomButtons();
-    }
+function applyZoom() {
+  const container = document.querySelector('.timeline-container');
+  const scrollLeftBefore = container.scrollLeft;
+  const scrollWidthBefore = timelineWrapper.scrollWidth;
+
+  // שימי לב: אנו משתמשים ב-transform כדי לשנות קנה מידה
+  timelineWrapper.style.transform = `scale(${zoomLevel})`;
+  timelineWrapper.style.transformOrigin = 'top right'; // חשוב במיוחד ל־RTL
+
+  // חישוב גלילה חדש לפי היחס
+  requestAnimationFrame(() => {
+    const scrollWidthAfter = timelineWrapper.getBoundingClientRect().width;
+    const scrollRatio = scrollLeftBefore / scrollWidthBefore;
+    container.scrollLeft = scrollRatio * scrollWidthAfter;
+  });
+
+  updateZoomButtons();
+}
+
 
     function updateZoomButtons() {
       zoomOutBtn.disabled = zoomLevel <= minZoom;
       zoomInBtn.disabled = zoomLevel >= maxZoom;
     }
 
-    zoomInBtn.addEventListener('click', () => {
-      if (zoomLevel < maxZoom) {
-        zoomLevel = Math.min(zoomLevel + 0.2, maxZoom);
-        applyZoom();
-      }
-    });
+zoomInBtn.addEventListener('click', () => {
+  if (zoomLevel < maxZoom) {
+    zoomLevel = Math.min(zoomLevel + 0.2, maxZoom);
+    applyZoom();
+  }
+});
 
     zoomOutBtn.addEventListener('click', () => {
       if (zoomLevel > minZoom) {
