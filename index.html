@@ -552,9 +552,9 @@ const hasVisible = [...document.querySelectorAll(`event[data-group*="${group}"]`
     const zoomOutBtn = document.getElementById('zoom-out');
     const timelineWrapper = document.querySelector('.timeline-wrapper');
 
-    let zoomLevel = 1;
-    const minZoom = 1;
-    const maxZoom = 3;
+let zoomLevel = 1;
+const minZoom = 0.3;
+const maxZoom = 3;
 
 function applyZoom() {
   const container = document.querySelector('.timeline-container');
