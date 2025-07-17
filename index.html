@@ -118,11 +118,11 @@
     }
 
     .timeline-wrapper {
-       padding-right: 20px; /* היה 100px */
-  padding-left: 20px;  /* היה 50px */
-      min-width: fit-content;
-  transform-origin: top right;
-      transition: transform 0.3s ease;
+       padding-right: 100px; /* היה 100px */
+       padding-left: 100px;  /* היה 50px */
+       width: 100%;
+       transform-origin: top right; /* עדיין אפשר להשאיר למקרה של שימוש עתידי */
+       transition: width 0.3s ease;
     }
 
     .timeline {
@@ -556,10 +556,19 @@ const hasVisible = [...document.querySelectorAll(`event[data-group*="${group}"]`
     const minZoom = 1;
     const maxZoom = 3;
 
-    function applyZoom() {
-timelineWrapper.style.transform = `scale(${zoomLevel})`;
-      updateZoomButtons();
-    }
+function applyZoom() {
+  const container = document.querySelector('.timeline-container');
+  const scrollLeftBefore = container.scrollLeft;
+  const scrollRatio = scrollLeftBefore / timelineWrapper.offsetWidth;
+
+  timelineWrapper.style.width = `${zoomLevel * 100}%`;
+
+  requestAnimationFrame(() => {
+    container.scrollLeft = scrollRatio * timelineWrapper.offsetWidth;
+  });
+
+  updateZoomButtons();
+}
 
     function updateZoomButtons() {
       zoomOutBtn.disabled = zoomLevel <= minZoom;
