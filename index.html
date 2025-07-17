@@ -117,11 +117,13 @@
       background: #a8b7c7;
     }
 
-.timeline-wrapper {
-  width: 100%;
-  min-width: fit-content;
-  transition: width 0.3s ease;
-}
+    .timeline-wrapper {
+       padding-right: 20px; /* היה 100px */
+  padding-left: 20px;  /* היה 50px */
+      min-width: fit-content;
+  transform-origin: top right;
+      transition: transform 0.3s ease;
+    }
 
     .timeline {
       position: relative;
@@ -466,45 +468,14 @@
     </div>
   </div>
 
-<script>
-const zoomInBtn = document.getElementById('zoom-in');
-const zoomOutBtn = document.getElementById('zoom-out');
-const timelineWrapper = document.getElementById('timeline-wrapper');
+ <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const activeGroups = new Set();
 
-let zoomLevel = 1;
-const minZoom = 1;
-const maxZoom = 3;
-
-function applyZoom() {
-  timelineWrapper.style.width = `${zoomLevel * 100}%`;
-  updateZoomButtons();
-}
-
-function updateZoomButtons() {
-  zoomInBtn.disabled = zoomLevel >= maxZoom;
-  zoomOutBtn.disabled = zoomLevel <= minZoom;
-}
-
-zoomInBtn.addEventListener('click', () => {
-  if (zoomLevel < maxZoom) {
-    zoomLevel = Math.min(zoomLevel + 0.2, maxZoom);
-    applyZoom();
-  }
-});
-
-zoomOutBtn.addEventListener('click', () => {
-  if (zoomLevel > minZoom) {
-    zoomLevel = Math.max(zoomLevel - 0.2, minZoom);
-    applyZoom();
-  }
-});
-
-applyZoom();
-
-    // כפתורי סינון קטגוריה (כפי שהיה קודם)
     document.querySelectorAll('.controls button').forEach(btn => {
       btn.addEventListener('click', () => {
         const grp = btn.getAttribute('data-group');
+
         if (activeGroups.has(grp)) {
           activeGroups.delete(grp);
           btn.classList.remove('active');
@@ -521,13 +492,12 @@ applyZoom();
 
         document.querySelectorAll('.controls button').forEach(b => {
           const group = b.getAttribute('data-group');
-          const hasVisible = [...document.querySelectorAll(`.event[data-group*="${group}"]`)].some(e => !e.classList.contains('hidden'));
+          const hasVisible = [...document.querySelectorAll(.event[data-group*="${group}"])].some(e => !e.classList.contains('hidden'));
           b.classList.toggle('showing', hasVisible && activeGroups.has(group));
         });
       });
     });
 
-    // גרירה אופקית
     const container = document.querySelector('.timeline-container');
     let isDown = false, startX, scrollLeft;
 
@@ -557,7 +527,6 @@ applyZoom();
       container.scrollLeft = scrollLeft - walk;
     });
 
-    // טולטיפים
     document.querySelectorAll('.dot').forEach(dot => {
       dot.addEventListener('click', e => {
         e.stopPropagation();
@@ -578,30 +547,66 @@ applyZoom();
       document.querySelectorAll('.tooltip.active').forEach(tip => tip.classList.remove('active'));
     });
 
-    // שנה תחת העכבר
-    const timeline = document.querySelector('.timeline');
-    const yearHover = document.getElementById('year-hover');
-    const startYear = 0;
-    const endYear = 2025;
+    // ✅ זום עם הגבלה וכפתורים מושבתים
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    const timelineWrapper = document.querySelector('.timeline-wrapper');
 
-    timeline.addEventListener('mousemove', e => {
-      const rect = timeline.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const percent = x / rect.width;
-      const year = Math.round(startYear + percent * (endYear - startYear));
+    let zoomLevel = 1;
+    const minZoom = 1;
+    const maxZoom = 3;
 
-      yearHover.style.left = `${x}px`;
-      yearHover.textContent = year;
-      yearHover.style.display = 'block';
+    function applyZoom() {
+      timelineWrapper.style.transform = scale(${zoomLevel});
+      updateZoomButtons();
+    }
+
+    function updateZoomButtons() {
+      zoomOutBtn.disabled = zoomLevel <= minZoom;
+      zoomInBtn.disabled = zoomLevel >= maxZoom;
+    }
+
+    zoomInBtn.addEventListener('click', () => {
+      if (zoomLevel < maxZoom) {
+        zoomLevel = Math.min(zoomLevel + 0.2, maxZoom);
+        applyZoom();
+      }
     });
 
-    timeline.addEventListener('mouseleave', () => {
-      yearHover.style.display = 'none';
+    zoomOutBtn.addEventListener('click', () => {
+      if (zoomLevel > minZoom) {
+        zoomLevel = Math.max(zoomLevel - 0.2, minZoom);
+        applyZoom();
+      }
     });
+
+    applyZoom(); // הפעלה ראשונית
+  });
+
+
+  const timeline = document.querySelector('.timeline');
+const yearHover = document.getElementById('year-hover');
+
+// הגדרות טווח
+const startYear = 0;
+const endYear = 2025;
+
+timeline.addEventListener('mousemove', e => {
+  const rect = timeline.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const percent = x / rect.width;
+  const year = Math.round(startYear + percent * (endYear - startYear));
+
+  yearHover.style.left = ${x}px;
+  yearHover.textContent = year;
+  yearHover.style.display = 'block';
+});
+
+timeline.addEventListener('mouseleave', () => {
+  yearHover.style.display = 'none';
+});
 
 
 </script>
 
-
 </body>
-</html>
