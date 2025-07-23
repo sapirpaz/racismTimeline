@@ -141,12 +141,18 @@
       z-index: 1;
     }
 
-.event {
-  position: absolute;
-  top: calc(100px + (var(--lane, 0) * 60px));
-  /* במקום הערך הקבוע top:100px */
-  transition: top 0.3s ease;
-}
+    .event {
+      position: absolute;
+      top: 100px;
+      transform: translateX(-50%) translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+        min-width: 32px;
+
+    }
+
     .event.hidden {
       display: none;
     }
@@ -353,7 +359,7 @@
 </div>
 
 <!-- 2. התרחבות הקולוניאליזם (1500–1900) -->
-<div class="event period" data-group="policy-racism culture-racism" style="left:74.1%; width:19.7%;">
+<div class="event period" data-group="policy-racism culture-racism" style="left:74.1%; width:19.7%; margin-top: -70px;">
   <div class="label">
     <div class="year">1500–1900</div>
     <div class="title">התרחבות הקולוניאליזם</div>
@@ -379,7 +385,7 @@
 </div>
 
 <!-- 3. רצח העם הארמני (1915–1916) -->
-<div class="event period" data-group="policy-racism culture-racism culture-resistance" style="left:94.6%; width:0.4%;">
+<div class="event period" data-group="policy-racism culture-racism culture-resistance" style="left:94.6%; width:0.4%; margin-top: -70px;">
   <div class="label">
     <div class="year">1915–1916</div>
     <div class="title">רצח העם הארמני</div>
@@ -401,7 +407,7 @@
 </div>
 
 <!-- 4. טבח שארפוויל (1960) -->
-<div class="event" data-group="resistance" style="left:96.3%;">
+<div class="event" data-group="resistance" style="left:96.3%; margin-top: -140px;">
   <div class="label">
     <div class="year">1960</div>
     <div class="title">טבח שארפוויל</div>
@@ -420,7 +426,7 @@
 </div>
 
 <!-- 5. איסלאמופוביה לאחר 9/11 (2001–2025) -->
-<div class="event period" data-group="policy-racism" style="left:99.4%; width:1.5%;">
+<div class="event period" data-group="policy-racism" style="left:99.4%; width:1.5%; margin-top: 0px;">
   <div class="label">
     <div class="year">2001–2025</div>
     <div class="title">איסלאמופוביה אחרי 9/11</div>
@@ -460,7 +466,7 @@
 </div>
 
 
-<div class="event period" data-group="policy-racism culture-racism resistance" style="left:79.9%; width:12.2%;">
+<div class="event period" data-group="policy-racism culture-racism resistance" style="left:79.9%; width:12.2%; margin-top: -140px;">
   <div class="label">
     <div class="year">1619–1865</div>
     <div class="title">מוסד העבדות בארה"ב</div>
@@ -491,7 +497,7 @@
 </div>
 
 
-<div class="event period" data-group="policy-racism" style="left:75.3%; width:14%; ">
+<div class="event period" data-group="policy-racism" style="left:75.3%; width:14%; margin-top: 0px;">
   <div class="label">
     <div class="year">1526–1808</div>
     <div class="title">סחר העבדים הטרנס-אטלנטי</div>
@@ -508,7 +514,7 @@
 </div>
 
 
-<div class="event period" data-group="policy-racism" style="left:92.9%; width:0.05%;">
+<div class="event period" data-group="policy-racism" style="left:92.9%; width:0.05%; margin-top: 0px;">
   <div class="label">
     <div class="year">1884–1885</div>
     <div class="title">ועידת ברלין – חלוקת אפריקה</div>
@@ -525,7 +531,7 @@
   </div>
 </div>
 
-<div class="event period" data-group="policy-racism resistance" style="left:97.1%; width:0.6%;">
+<div class="event period" data-group="policy-racism resistance" style="left:97.1%; width:0.6%; margin-top: -210px;">
   <div class="label">
     <div class="year">1933–1945</div>
     <div class="title">השפעת הגזענות האמריקאית על גרמניה הנאצית</div>
@@ -545,8 +551,7 @@
 </div>
 
 
-
-<div class="event period" data-group="policy-racism culture-racism" style="left:97.3%; width:0.05%;">
+<div class="event period" data-group="policy-racism culture-racism" style="left:97.7%; width:0.2%; margin-top: -280px;">
   <div class="label">
     <div class="year">1935</div>
     <div class="title">חוקי נירנברג</div>
@@ -567,7 +572,28 @@
   </div>
 </div>
 
-<div class="event period" data-group="resistance" style="left:97.7%; width:0.2%;">
+<div class="event period" data-group="policy-racism culture-resistance" style="left:98.2%; width:0.3%; margin-top: -350px;">
+  <div class="label">
+    <div class="year">1942–1946</div>
+    <div class="title">כליאת יפנים־אמריקאים</div>
+  </div>
+  <div class="dot-container">
+    <div class="dot">
+      <div class="tooltip">
+        <button class="close-tooltip">×</button>
+        <strong>גזענות דרך מדיניות:</strong><br>
+        יותר מ־120,000 יפנים-אמריקאים נעקרו מבתיהם ונכלאו במחנות על רקע אתני בלבד.<br><br>
+        <strong>גזענות דרך תרבות:</strong><br>
+        לאחר שנים, התבצעו הפגנות, התנצלות ממשלתית ופיצויים על סך 20,000$ לאדם.<br><br>
+        <a href="https://www.britannica.com/topic/Japanese-American-internment" target="_blank">כליאת יפנים אמריקאים – בריטניקה</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="event period" data-group="culture-resistance" style="left:89.7%; width:1.5%; margin-top: -420px;">
   <div class="label">
     <div class="year">1927–1950</div>
     <div class="title">בהימראו אמבדקר – מאבק הדלית</div>
@@ -584,6 +610,7 @@
     </div>
   </div>
 </div>
+
 
 
         </div>
@@ -742,35 +769,7 @@ timeline.addEventListener('mouseleave', () => {
   yearHover.style.display = 'none';
 });
 
-function assignLanes() {
-  const events = Array.from(document.querySelectorAll('.event'));
-  // קודם לפי 'left' ו'width' בסדר עולה
-  events.sort((a, b) => {
-    const la = parseFloat(a.style.left), wa = parseFloat(a.style.width);
-    const lb = parseFloat(b.style.left), wb = parseFloat(b.style.width);
-    return la - lb || wa - wb;
-  });
-  const lanes = [];
-  events.forEach(ev => {
-    const left = parseFloat(ev.style.left);
-    const right = left + parseFloat(ev.style.width);
-    // מציאת lane פנוי
-    let laneIdx = lanes.findIndex(ch => ch <= left);
-    if (laneIdx === -1) {
-      laneIdx = lanes.length;
-      lanes.push(right);
-    } else {
-      lanes[laneIdx] = right;
-    }
-    ev.style.setProperty('--lane', laneIdx);
-  });
-}
 
-// להפעיל אחרי טעינת DOM
-document.addEventListener('DOMContentLoaded', () => {
-  assignLanes();
-  window.addEventListener('resize', assignLanes);
-});
 </script>
 
 </body>
