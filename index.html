@@ -141,18 +141,12 @@
       z-index: 1;
     }
 
-    .event {
-      position: absolute;
-      top: 100px;
-      transform: translateX(-50%) translateY(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 2;
-        min-width: 32px;
-
-    }
-
+.event {
+  position: absolute;
+  top: calc(100px + (var(--lane, 0) * 60px));
+  /* במקום הערך הקבוע top:100px */
+  transition: top 0.3s ease;
+}
     .event.hidden {
       display: none;
     }
@@ -748,7 +742,35 @@ timeline.addEventListener('mouseleave', () => {
   yearHover.style.display = 'none';
 });
 
+function assignLanes() {
+  const events = Array.from(document.querySelectorAll('.event'));
+  // קודם לפי 'left' ו'width' בסדר עולה
+  events.sort((a, b) => {
+    const la = parseFloat(a.style.left), wa = parseFloat(a.style.width);
+    const lb = parseFloat(b.style.left), wb = parseFloat(b.style.width);
+    return la - lb || wa - wb;
+  });
+  const lanes = [];
+  events.forEach(ev => {
+    const left = parseFloat(ev.style.left);
+    const right = left + parseFloat(ev.style.width);
+    // מציאת lane פנוי
+    let laneIdx = lanes.findIndex(ch => ch <= left);
+    if (laneIdx === -1) {
+      laneIdx = lanes.length;
+      lanes.push(right);
+    } else {
+      lanes[laneIdx] = right;
+    }
+    ev.style.setProperty('--lane', laneIdx);
+  });
+}
 
+// להפעיל אחרי טעינת DOM
+document.addEventListener('DOMContentLoaded', () => {
+  assignLanes();
+  window.addEventListener('resize', assignLanes);
+});
 </script>
 
 </body>
